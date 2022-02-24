@@ -54,7 +54,7 @@ public class ClienteController {
   @GetMapping("/ver/{id}")
   public String ver(@PathVariable Long id, Model model, RedirectAttributes flash) {
 
-    Cliente cliente = clienteService.findById(id);
+    Cliente cliente = clienteService.fetchByIdWithFacturas(id); //clienteService.findById(id);
     if (cliente == null) {
       flash.addFlashAttribute("error", "El cliente no existe en la BBDD");
       return "redirect:/listar";
@@ -65,7 +65,7 @@ public class ClienteController {
     return "ver";
   }
 
-  @GetMapping("/listar")
+  @GetMapping({"/", "/listar"})
   public String listar(@RequestParam(defaultValue = "0") int page, Model model) {
 
     Pageable pageRequest = PageRequest.of(page, 5);
@@ -161,7 +161,7 @@ public class ClienteController {
       clienteService.delete(id);
       flash.addFlashAttribute("success", "Cliente eliminado con éxito!");
 
-      if (uploadFileService.delete(cliente.getFoto())) {
+      if (cliente.getFoto() != null && uploadFileService.delete(cliente.getFoto())) {
         flash.addFlashAttribute("info", "Foto " + cliente.getFoto() + " eliminada con éxito");
       }
 
